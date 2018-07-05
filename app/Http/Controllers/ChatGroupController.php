@@ -25,7 +25,7 @@ class ChatGroupController extends Controller
 	  	$data = MessageGroups::create([
 	  		'message' 	=> $request->message,
 	  		'group_id' 	=> $request->group_id,
-	  		'user_id' 	=> $request->user_id,
+	  		'user_id' 	=> $request->user['id'],
 	  	]);
 
 	  	broadcast(new NewMessageGroup($data));

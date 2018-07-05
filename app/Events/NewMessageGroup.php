@@ -34,18 +34,18 @@ class NewMessageGroup implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new PrivateChannel('Chat-Group.' . $this->message_group->group->id);
+        return new PrivateChannel('Chat-Group.' . $this->message_group->group_id);
     }
 
 
-    // public function broadcastWith()
-    // {
-    //     return [
-    //         'message' => $this->message_group->message,
-    //         'user' => [
-    //             'id' => $this->message_group->user->id,
-    //             'name' => $this->message_group->user->name,
-    //         ]
-    //     ];
-    // }
+    public function broadcastWith()
+    {
+        return [
+            'message' => $this->message_group->message,
+            'user' => [
+                'id' => $this->message_group->user->id,
+                'name' => $this->message_group->user->name,
+            ]
+        ];
+    }
 }

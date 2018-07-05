@@ -40,33 +40,46 @@ const app = new Vue({
         const senderId      = $('meta[name="senderId"]').attr('content');
         const receiverId    = $('meta[name="receiverId"]').attr('content');
         const groupId       = $('meta[name="groupId"]').attr('content');
-        //console.log(groupId)
+        const user_group_id = $('meta[name="user_group_id"]').attr('content');
 
         if(receiverId != undefined) {
-
             this.getPrivateChatfromUser(receiverId);
 
         }
 
-      
-        // Chat
+        //get message chat grup
+        if(groupId != undefined) {
+            console.log('group');
+            
+            this.getChatGroup(groupId);
+        }
+
+        // Listen Chat Private
         Echo.private('Chat.' + receiverId + '.' + senderId)
-			.listen('MessageSent', (e) => {
-			    this.messages.push({
-			      message: e.message.message,
-                  sender_id: e.senderid,
-			      receiver_id: e.receiverid
-			    });
-			});
-
-
-        // Chat Grup
-        Echo.private('Chat-Group.' + groupId)
-            .listen('NewMessageGroup', (e) => {
+            .listen('MessageSent', (e) => {
                 this.messages.push({
                   message: e.message.message,
+                  sender_id: e.senderid,
+                  receiver_id: e.receiverid
                 });
-            });
+            }); 
+
+
+        // Listen Chat Grup
+        Echo.private('Chat-Group.' + groupId)
+            .listen('NewMessageGroup', (e) => {
+                console.log(e)
+                if(e.user.id != user_group_id)
+                {
+                    this.messages.push({
+                      message: e.message,
+                      group_id: groupId,
+                      user_id: e.user.id,
+                      user: e.user
+                    });
+                }
+                
+            }); 
 
 
         //Online
@@ -83,27 +96,22 @@ const app = new Vue({
                 });
         }
 
-        //get message chat grup
-        if(groupId != undefined) {
-
-            this.getChatGroup(groupId);
-
-        }    
+          
     },
 
 
     methods: {
+
+        //get data chat base on user_id
         getPrivateChatfromUser(receiverId) {
             axios.get('/messages/'+receiverId).then(response => {
-                console.log(response.data);
                 this.messages = response.data;
             });
         },
 
-
+        //get data chat group based on group id
         getChatGroup(groupId) {
             axios.get('/messages-group/'+groupId).then(response => {
-                console.log(response.data);
                 this.messages = response.data;
             });
         },
@@ -111,18 +119,16 @@ const app = new Vue({
 
         addMessage(message) {
             this.messages.push(message);
-
             axios.post('/messages', message).then(response => {
-              console.log(response.data);
             });
         },
 
 
         addMessageGroup(message) {
             this.messages.push(message);
-
             axios.post('/messages-group', message).then(response => {
-              console.log(response.data);
+
+                this.getChatGroup(message.group_id);
             });
         },
 

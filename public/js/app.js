@@ -1121,14 +1121,20 @@ var app = new Vue({
         var senderId = $('meta[name="senderId"]').attr('content');
         var receiverId = $('meta[name="receiverId"]').attr('content');
         var groupId = $('meta[name="groupId"]').attr('content');
-        //console.log(groupId)
+        var user_group_id = $('meta[name="user_group_id"]').attr('content');
 
         if (receiverId != undefined) {
-
             this.getPrivateChatfromUser(receiverId);
         }
 
-        // Chat
+        //get message chat grup
+        if (groupId != undefined) {
+            console.log('group');
+
+            this.getChatGroup(groupId);
+        }
+
+        // Listen Chat Private
         Echo.private('Chat.' + receiverId + '.' + senderId).listen('MessageSent', function (e) {
             _this.messages.push({
                 message: e.message.message,
@@ -1137,11 +1143,17 @@ var app = new Vue({
             });
         });
 
-        // Chat Grup
+        // Listen Chat Grup
         Echo.private('Chat-Group.' + groupId).listen('NewMessageGroup', function (e) {
-            _this.messages.push({
-                message: e.message.message
-            });
+            console.log(e);
+            if (e.user.id != user_group_id) {
+                _this.messages.push({
+                    message: e.message,
+                    group_id: groupId,
+                    user_id: e.user.id,
+                    user: e.user
+                });
+            }
         });
 
         //Online
@@ -1156,44 +1168,40 @@ var app = new Vue({
                 });
             });
         }
-
-        //get message chat grup
-        if (groupId != undefined) {
-
-            this.getChatGroup(groupId);
-        }
     },
 
 
     methods: {
+
+        //get data chat base on user_id
         getPrivateChatfromUser: function getPrivateChatfromUser(receiverId) {
             var _this2 = this;
 
             axios.get('/messages/' + receiverId).then(function (response) {
-                console.log(response.data);
                 _this2.messages = response.data;
             });
         },
+
+
+        //get data chat group based on group id
         getChatGroup: function getChatGroup(groupId) {
             var _this3 = this;
 
             axios.get('/messages-group/' + groupId).then(function (response) {
-                console.log(response.data);
                 _this3.messages = response.data;
             });
         },
         addMessage: function addMessage(message) {
             this.messages.push(message);
-
-            axios.post('/messages', message).then(function (response) {
-                console.log(response.data);
-            });
+            axios.post('/messages', message).then(function (response) {});
         },
         addMessageGroup: function addMessageGroup(message) {
-            this.messages.push(message);
+            var _this4 = this;
 
+            this.messages.push(message);
             axios.post('/messages-group', message).then(function (response) {
-                console.log(response.data);
+
+                _this4.getChatGroup(message.group_id);
             });
         }
     }
@@ -49602,11 +49610,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['messages'],
+  props: ['messages', 'groupid', 'userid', 'user'],
   mounted: function mounted() {
-    console.log(this.messages);
+    console.log(this.userid);
   }
 });
 
@@ -49624,11 +49646,45 @@ var render = function() {
     _vm._l(_vm.messages, function(message) {
       return _c("li", { staticClass: "left clearfix" }, [
         _c("div", { staticClass: "chat-body clearfix" }, [
-          _c("p", [
-            _vm._v(
-              "\n                " + _vm._s(message.message) + "\n            "
-            )
-          ])
+          message.user.id == _vm.userid
+            ? _c("div", { staticClass: "text-right" }, [
+                _c("div", { staticClass: "header" }, [
+                  _c("strong", { staticClass: "primary-font" }, [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(message.user.name) +
+                        "\n                    "
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("p", [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(message.message) +
+                      "\n                "
+                  )
+                ])
+              ])
+            : _c("div", { staticClass: "text-left" }, [
+                _c("div", { staticClass: "header" }, [
+                  _c("strong", { staticClass: "primary-font" }, [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(message.user.name) +
+                        "\n                    "
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("p", [
+                  _vm._v(
+                    "\n                    " +
+                      _vm._s(message.message) +
+                      "\n                "
+                  )
+                ])
+              ])
         ])
       ])
     })
@@ -49712,7 +49768,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
-    props: ['messages', 'groupid', 'userid'],
+    props: ['messages', 'groupid', 'user'],
 
     data: function data() {
         return {
@@ -49726,7 +49782,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.$emit('newmessagegroup', {
                 message: this.chats,
                 group_id: this.groupid,
-                user_id: this.userid
+                user: this.user
             });
 
             this.chats = '';

@@ -7,7 +7,6 @@
         <div class="col-md-8 col-md-offset-2">
             <div class="panel panel-default">
                 <div class="panel-heading">Groups
-
                 </div>
 
                 <form action="{{ route('groups.store') }}" class="form from-horizontal" method="POST">
@@ -17,7 +16,8 @@
                         <div class="form-group">
                             <label class="col-md-3 control-label">Name</label>
                             <div class="col-md-9">
-                                <input type="text" name="name" class="form-control input-sm" required>
+                                <input type="text" name="name" class="form-control input-sm" value="{{ old('name') ? old('name') : '' }}">
+                                {!! $errors->first('name', '<p class="text-danger">:message</p>') !!}
                             </div>
                         </div>
                         <div class="form-group">
@@ -25,10 +25,11 @@
                             <div class="col-md-6">
                                 @foreach($users as $user)
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="{{ $user->id }}" name="user_other[]" value="{{ $user->id }}">
+                                        <input type="checkbox" class="form-check-input" id="{{ $user->id }}" name="users[]" value="{{ $user->id }}">
                                         <label class="form-check-label" for="{{ $user->id }}">{{ $user->name }}</label>
                                     </div>
                                 @endforeach
+                                {!! $errors->first('users', '<p class="text-danger">:message</p>') !!}
                             </div>
                             
                         </div>

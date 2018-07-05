@@ -14,7 +14,7 @@
 
 
     export default {
-       props: ['messages', 'groupid', 'userid'],
+       props: ['messages', 'groupid', 'user'],
 
         data() {
             return {
@@ -29,7 +29,7 @@
                 this.$emit('newmessagegroup', {
                     message: this.chats,
                     group_id: this.groupid,
-                    user_id: this.userid,
+                    user: this.user,
                 });
 
                 this.chats = ''

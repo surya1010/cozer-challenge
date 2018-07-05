@@ -26,6 +26,6 @@ Broadcast::channel('Online', function ($user) {
 });
 
 
-Broadcast::channel('Chat-Group.{group}', function ($user, Group $grup) {
+Broadcast::channel('Chat-Group.{group}', function ($user, Group $group) {
     return $group->hasUser($user->id);
 });

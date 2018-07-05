@@ -3,6 +3,7 @@
 @section('content')
 
 <meta name="groupId" content="{{ $group->id }}">
+<meta name="user_group_id" content="{{  Auth::user()->id }}">
 
 <div class="container">
     <div class="row">
@@ -11,11 +12,11 @@
                 <div class="panel-heading">Chats Groups - {{ $group->name }}</div>
 
                 <div class="panel-body">
-                    <chat-messages-group :messages="messages"></chat-messages>
+                    <chat-messages-group :messages="messages" v-bind:groupid="{{ $group->id }}" :userid="{{ Auth::user()->id }}"  ></chat-messages>
                 </div>
                 <div class="panel-footer">
                     <chat-form-group
-                        v-on:newmessagegroup="addMessageGroup" :userid="{{ Auth::user()->id }}" :groupid="{{ $group->id }}"
+                        v-on:newmessagegroup="addMessageGroup" :groupid="{{ $group->id }}" :user="{{ Auth::user() }}"
                     ></chat-form-group>
                 </div>
             </div>
